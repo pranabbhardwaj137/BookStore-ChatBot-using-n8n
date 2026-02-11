@@ -1,0 +1,1244 @@
+{
+  "name": "BookStoreChat_Anuyog_n8n",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "/bookstore-chat",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        480,
+        1120
+      ],
+      "id": "8d2896c5-290e-4296-ae8d-a988b29b73e4",
+      "name": "Webhook",
+      "webhookId": "e4ddcd17-56d0-4bd5-88be-32c258d4d2b7"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "129b9992-6119-4177-8514-e2160efd4dcc",
+              "name": "text",
+              "value": "={{ $json.body.message }}",
+              "type": "string"
+            },
+            {
+              "id": "494137ba-a2cf-4467-a275-529917dc5f17",
+              "name": "text_lower",
+              "value": "={{ $json.body.message.toLowerCase() }}",
+              "type": "string"
+            },
+            {
+              "id": "68758f7d-a760-466a-ad15-23fbae66e072",
+              "name": "query",
+              "value": "={{ $json.body.message.toLowerCase() }}",
+              "type": "string"
+            },
+            {
+              "id": "e0b5a485-a696-428b-8fa5-dc51c753291d",
+              "name": "order_id",
+              "value": "={{   (     $json.body.message.match(/\\d{4}/) || [null]   )[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "5c0759da-444b-4ef7-8d93-ad9567ee645e",
+              "name": "genre_query",
+              "value": "={{ \n  (() => {\n    const genres = [\n      \"self-help\",\"fiction\",\"fantasy\",\"finance\",\"productivity\",\"history\",\n      \"spirituality\",\"business\",\"biography\",\"thriller\",\"sci-fi\"\n    ];\n\n    const found = genres.find(g =>\n      $json.body.message.toLowerCase().includes(g)\n    );\n\n    return found || null;\n  })()\n}}",
+              "type": "string"
+            },
+            {
+              "id": "69ad2799-080e-48d3-8809-b871432a9cb0",
+              "name": "title_query",
+              "value": "={{\n  $json.body.message\n    .toLowerCase()\n    .replace(/do you have|show me|is there|is|available|books?|any|the|a |\\\\?|!/gi, \"\")\n    .trim()\n}}",
+              "type": "string"
+            },
+            {
+              "id": "cb9dfe72-362b-4ffc-9d3f-05fe3565ead4",
+              "name": "book_intent",
+              "value": "={{ true }}",
+              "type": "boolean"
+            },
+            {
+              "id": "05395ab1-7f58-4035-b6be-a6c7dec0d6f7",
+              "name": "faq_intent",
+              "value": "={{     $json.body.message.toLowerCase().includes(\"cash on delivery\") ||      $json.body.message.toLowerCase().includes(\"cod\")       ? \"COD\"     : $json.body.message.toLowerCase().includes(\"delivery\") &&       $json.body.message.toLowerCase().includes(\"charge\")       ? \"DELIVERY_CHARGES\"     : $json.body.message.toLowerCase().includes(\"delivery\")       ? \"DELIVERY_TIME\"     : $json.body.message.toLowerCase().includes(\"refund\")       ? \"REFUND\"     : $json.body.message.toLowerCase().includes(\"payment\")       ? \"PAYMENT\"     : $json.body.message.toLowerCase().includes(\"cancel\")       ? \"CANCEL\"     : $json.body.message.toLowerCase().includes(\"track\")       ? \"TRACK\"     : $json.body.message.toLowerCase().includes(\"genre\")       ? \"GENRE\"     : null   }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        704,
+        1120
+      ],
+      "id": "e363d9f6-db36-495f-8df7-9c8df97ee18f",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "d671e2d0-5009-49f9-a83a-a2a31419774c",
+                    "leftValue": "={{ $json.text_lower.match(/^(i am|hello|hi|hey|help|thanks|thank you|bye|ok|okay|good morning|good evening)/) !== null }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "14fa64ed-93f0-4e5a-97b4-40e48d9a8124",
+                    "leftValue": "={{ !$json.order_id && !$json.faq_intent }}",
+                    "rightValue": "=true",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "c953d918-2b62-4b65-8e0c-859a5c048f42",
+                    "leftValue": "={{ $json.order_id }}",
+                    "rightValue": "0",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a5a177af-5a1e-4d20-b6ea-61c09a08ae27",
+                    "leftValue": "={{ $json.faq_intent }}\n",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        928,
+        1360
+      ],
+      "id": "52ffdf1c-e152-4310-ac86-a898f0553416",
+      "name": "Switch",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "=https://docs.google.com/spreadsheets/d/1_JOgyGWAlXC-q8Xtp0uE1LJKvIPgjJYpg-QuYwdbv0U/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_JOgyGWAlXC-q8Xtp0uE1LJKvIPgjJYpg-QuYwdbv0U/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1152,
+        952
+      ],
+      "id": "a0c3a5f9-ce9d-41e3-8447-b7035fd6a1df",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "86vluzxpv0LbKYbg",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1dDtQvF0flSLUT_-OvcqeuQP87jlnIG-F3pmOgdRsijc/edit",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dDtQvF0flSLUT_-OvcqeuQP87jlnIG-F3pmOgdRsijc/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1600,
+        1408
+      ],
+      "id": "7a7e5d7a-dfb6-40ef-a156-4e057175b133",
+      "name": "Get row(s) in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "86vluzxpv0LbKYbg",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1mBbaGBPZkdZKbwqIa3f23wfygwM6Sh3u32hBSADeFw4/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mBbaGBPZkdZKbwqIa3f23wfygwM6Sh3u32hBSADeFw4/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1600,
+        1792
+      ],
+      "id": "0b7829a9-b716-4576-9bae-a0d3bb8e43ba",
+      "name": "Get row(s) in sheet3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "86vluzxpv0LbKYbg",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c2eec4da-168b-4c0a-be44-da537262af62",
+              "leftValue": "={{ $json.intent }}\n",
+              "rightValue": "={{ $('Edit Fields').item.json.faq_intent }}\n",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1824,
+        1792
+      ],
+      "id": "1ee7f8c6-d5fe-4605-871b-314a4b091c00",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"reply\": \"{{ $json.answer }}\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2048,
+        1696
+      ],
+      "id": "40b371df-a779-461c-b752-1543d126a4f0",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "\n{\n  \"reply\": \"Sorry, I don’t have an answer for that.\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2048,
+        1888
+      ],
+      "id": "f6923d30-1ed4-4652-a009-461e59d06b85",
+      "name": "Edit Fields4"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "1df5a43e-7a7c-4c65-8092-7190e5bfa423",
+              "leftValue": "={{ $json.order_id.replace('O','') }}\n",
+              "rightValue": "={{ $('Edit Fields').item.json.order_id }}\n",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1824,
+        1408
+      ],
+      "id": "153899af-76bb-4946-8aa3-9fd178b1de3e",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ \n  { \n    \"reply\":\n      \"Hey \" + $json.customer_name +\n      \", your order \" + $json.order_id +\n      \" is currently \" + $json.status.toLowerCase() +\n      \". Ordered on \" + $json.order_date +\n      (\n        $json.delivery_date\n          ? \". Expected delivery: \" + $json.delivery_date\n          : \"\"\n      )\n  }\n}}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2048,
+        1312
+      ],
+      "id": "095a2ba4-44db-4d27-9e2e-f626206f390e",
+      "name": "Edit Fields5"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"reply\": \" Sorry, I couldn’t find an order ID {{ $('Edit Fields').item.json.order_id }}. Please check and try again.\"\n}\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2048,
+        1504
+      ],
+      "id": "d59ef5c9-b2bc-47c2-9b9b-c67936b432a2",
+      "name": "Edit Fields6"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1376,
+        832
+      ],
+      "id": "a5529436-bd43-47c8-bf7b-4523b38ac665",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"success\": false,\n  \"reply\": \"Sorry, I couldn't find '{{ $json._editFields.title_query }}'. Try another book or ask for genres.\",\n  \"originalQuery\": \"{{ $json._editFields.text }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2048,
+        736
+      ],
+      "id": "0c12afbe-e2ca-4af8-848e-64b02f559c34",
+      "name": "Edit Fields7"
+    },
+    {
+      "parameters": {
+        "jsCode": "const editFieldsData = $('Edit Fields').item.json;\nconst searchQuery = (editFieldsData.title_query || '').toLowerCase().trim();\nconst genreQuery = (editFieldsData.genre_query || '').toLowerCase().trim();\nconst allBooks = $input.all();\n\nfunction normalize(str) {\n  return str.toLowerCase().replace(/[^a-z0-9\\\\s]/g, '').replace(/\\\\s+/g, ' ').trim();\n}\n\nfunction getSimilarityScore(bookTitle, query) {\n  const normalizedBook = normalize(bookTitle);\n  const normalizedQuery = normalize(query);\n  \n  if (normalizedBook === normalizedQuery) return 100;\n  if (normalizedBook.includes(normalizedQuery)) return 90;\n  if (normalizedBook.startsWith(normalizedQuery)) return 85;\n  \n  const bookWords = normalizedBook.split(' ').filter(w => w.length > 2);\n  const queryWords = normalizedQuery.split(' ').filter(w => w.length > 2);\n  if (queryWords.length === 0) return 0;\n  \n  let exactMatches = 0;\n  let partialMatches = 0;\n  \n  queryWords.forEach(queryWord => {\n    if (bookWords.includes(queryWord)) {\n      exactMatches++;\n    } else if (bookWords.some(bookWord => \n      bookWord.includes(queryWord) || queryWord.includes(bookWord)\n    )) {\n      partialMatches++;\n    }\n  });\n  \n  const exactMatchRatio = exactMatches / queryWords.length;\n  const partialMatchRatio = partialMatches / queryWords.length;\n  \n  if (queryWords.length >= 2 && exactMatchRatio >= 0.8) {\n    return 70 + (exactMatchRatio * 10);\n  }\n  \n  if (queryWords.length === 1 && exactMatches === 1) {\n    return 75;\n  }\n  \n  return (exactMatchRatio * 60) + (partialMatchRatio * 20);\n}\n\nconst scoredBooks = allBooks\n  .map((item) => {\n    const book = item.json;\n    if (!book || !book.title || !book.genre) return null;\n    \n    const bookTitle = (book.title || '').toString();\n    const bookGenre = (book.genre || '').toString().toLowerCase();\n    let score = 0;\n    \n    if (genreQuery && bookGenre === genreQuery) {\n      score = 95;\n    }\n    \n    if (searchQuery && searchQuery.length > 2) {\n      const titleScore = getSimilarityScore(bookTitle, searchQuery);\n      score = Math.max(score, titleScore);\n    }\n    \n    return { ...item, score: score, book: book };\n  })\n  .filter(item => item !== null && item.score > 0);\n\nscoredBooks.sort((a, b) => b.score - a.score);\nconst matchedBooks = scoredBooks.filter(item => item.score >= 70);\n\nif (matchedBooks.length > 0) {\n  return matchedBooks.map(item => ({\n    json: {\n      ...item.book,\n      _matchScore: item.score,\n      _editFields: editFieldsData\n    },\n    pairedItem: item.pairedItem\n  }));\n} else {\n  return [{\n    json: {\n      notFound: true,\n      message: \"No books found matching your query\",\n      _editFields: editFieldsData\n    }\n  }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1600,
+        832
+      ],
+      "id": "f7eba8ca-d58f-4b39-a39b-894fbac61b09",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4aa048a7-d27e-4a92-a7f6-007ecafda617",
+              "leftValue": "={{ $json.notFound }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1824,
+        832
+      ],
+      "id": "ec93c7ea-1a66-4e70-b8dd-66f72c9929e1",
+      "name": "If5"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"success\": true,\n  \"reply\": \"Hello! 👋 Welcome to our bookstore.\\n\\nI can help you with:\\n\\n📚 Book searches - 'Do you have Atomic Habits?'\\n📦 Order tracking - 'Where is my order #1003?'\\n🏷️ Browse by genre - 'Show me fiction books'\\n❓ FAQs - Delivery, refunds, COD, etc.\\n\\nWhat would you like to know?\",\n  \"quickActions\": [\n    \"Show me fiction books\",\n    \"Do you have Atomic Habits?\",\n    \"Where is my order #1003?\",\n    \"Do you accept COD?\",\n    \"What genres are available?\"\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2048,
+        1120
+      ],
+      "id": "e8c445a2-f2a2-46db-8078-ba87361a53cc",
+      "name": "Edit Fields8"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"success\": false,\n  \"message\": \"Sorry, I couldn't find any books matching '{{ $json.searchQuery }}'.\\n\\n💡 Try:\\n• Searching by genre: 'Show me fiction books'\\n• Checking available genres: 'What genres do you have?'\\n• Being more specific: Use the book's full title\",\n  \"suggestions\": [\n    \"What genres are available?\",\n    \"Show me self-help books\",\n    \"Show me fiction books\"\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2048,
+        2080
+      ],
+      "id": "f24081ef-6239-4f8c-8d76-ea8c717fde65",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "content": "0 greeting\n1 order\n2 faq\n3 book/genre\nF fallback"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        832,
+        800
+      ],
+      "typeVersion": 1,
+      "id": "e7938e5c-cdcc-4855-b4af-fccb5f74713d",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "jsCode": "const books = $input.all().map(item => item.json);\n\nif (books.length === 1) {\n  const book = books[0];\n  return [{\n    json: {\n      success: true,\n      reply: `Yes, \"${book.title}\" by ${book.author} is available for ₹${book.price}. Stock left: ${book.stock}`,\n    }\n  }];\n}\n\nconst topBooks = books.slice(0, 5);\n\nreturn [{\n  json: {\n    success: true,\n    reply: `Found ${topBooks.length} book(s):\\n\\n` + \n      topBooks.map((book, i) => \n        `${i + 1}. ${book.title} by ${book.author} - ₹${book.price}`\n      ).join('\\n'),\n    \n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2048,
+        928
+      ],
+      "id": "813bfaa6-f44c-4d15-b40c-72340d061656",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1mIswvKUkIM5LBtfPFXNZw0P3Dhh-hU3lmydHE4O1LL0/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mIswvKUkIM5LBtfPFXNZw0P3Dhh-hU3lmydHE4O1LL0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $now.toISO() }}",
+            "session_id": "={{ $json.sessionId }}",
+            "user_message": "={{ $('Edit Fields').first().json.text }}",
+            "bot_response": "={{ $json.message || $json.reply }}",
+            "intent": "={{ $('Edit Fields').first().json.faq_intent || $('Edit Fields').first().json.genre_query || 'book_search' }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "user_message",
+              "displayName": "user_message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "bot_response",
+              "displayName": "bot_response",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "intent",
+              "displayName": "intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2272,
+        1408
+      ],
+      "id": "e4d193dd-6409-4098-8c60-1b89702c0802",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "86vluzxpv0LbKYbg",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2496,
+        1408
+      ],
+      "id": "a40a7d1b-d083-4be7-97cc-0d06ea0f1043",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "path": "bookstore-chat/books",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        480,
+        320
+      ],
+      "id": "ca2d914f-2594-4898-9f35-48b35e5035c9",
+      "name": "Webhook1",
+      "webhookId": "ec3f1b84-17e3-4bc1-a6d8-9dd337355196"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1_JOgyGWAlXC-q8Xtp0uE1LJKvIPgjJYpg-QuYwdbv0U/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_JOgyGWAlXC-q8Xtp0uE1LJKvIPgjJYpg-QuYwdbv0U/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        704,
+        320
+      ],
+      "id": "13158aa7-e95e-485c-afda-8d0c325d5dfe",
+      "name": "Get row(s) in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "86vluzxpv0LbKYbg",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const books = $input.all().map(item => item.json);\n\nreturn [{\n  json: {\n    success: true,\n    books\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        928,
+        320
+      ],
+      "id": "72718c7f-c9bf-43e9-88c6-24a408bbe512",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "path": "bookstore-chat/orders",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        480,
+        512
+      ],
+      "id": "6b9bfc93-d2f5-4413-8c72-4cb3f08e9470",
+      "name": "Webhook2",
+      "webhookId": "ec3f1b84-17e3-4bc1-a6d8-9dd337355196"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1dDtQvF0flSLUT_-OvcqeuQP87jlnIG-F3pmOgdRsijc/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dDtQvF0flSLUT_-OvcqeuQP87jlnIG-F3pmOgdRsijc/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        704,
+        512
+      ],
+      "id": "0b47fd48-638b-4157-bbe0-11cf4e3e3ae6",
+      "name": "Get row(s) in sheet4",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "86vluzxpv0LbKYbg",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const orders = $input.all().map(item => item.json);\n\nreturn [{\n  json: {\n    success: true,\n    orders\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        928,
+        512
+      ],
+      "id": "e391e98e-4b69-480a-a0e3-8da751a44d73",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1152,
+        320
+      ],
+      "id": "a0c8246d-7ba7-4b5b-8798-9cbf12994369",
+      "name": "Respond to Webhook2"
+    },
+    {
+      "parameters": {
+        "path": "bookstore-chat/logs",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        480,
+        128
+      ],
+      "id": "3f393126-49d9-4b40-863d-ed44b19ef4ef",
+      "name": "Webhook3",
+      "webhookId": "ec3f1b84-17e3-4bc1-a6d8-9dd337355196"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1mIswvKUkIM5LBtfPFXNZw0P3Dhh-hU3lmydHE4O1LL0/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mIswvKUkIM5LBtfPFXNZw0P3Dhh-hU3lmydHE4O1LL0/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        704,
+        128
+      ],
+      "id": "37352e09-a2be-4612-86ea-bb58a1f2e8e3",
+      "name": "Get row(s) in sheet5",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "86vluzxpv0LbKYbg",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const chats = $input.all().map(item => item.json);\n\nreturn [{\n  json: {\n    success: true,\n    chats\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        928,
+        128
+      ],
+      "id": "863cddb4-06ee-4b7d-9a0b-b425581a6653",
+      "name": "Code in JavaScript4"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields8",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get row(s) in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get row(s) in sheet3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet3": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields4": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet2": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields5": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields6": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields7": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If5": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields7",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields8": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook2": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet4": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook3": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet5": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "timezone": "Indian/Maldives",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "2bf0a83a-12bc-4e9f-8faf-d849cdec64ae",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c32fea6bcd0efba09fecd64b5f2cffaa64dea75c32bba53d5a017b7f926aa47e"
+  },
+  "id": "VXee8DsqcNVUqgzVkUbKO",
+  "tags": []
+}
