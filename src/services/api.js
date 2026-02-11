@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5678/webhook/bookstore-chat';
+const API_BASE_URL = 'https://pranab7.app.n8n.cloud/webhook/bookstore-chat';
 
 const api = axios.create({
     baseURL: API_BASE_URL,
