@@ -1,23 +1,27 @@
-# Bookstore Rule‑Based Chatbot (Frontend)
+# Bookstore Rule‑Based Chatbot
 
 A modern React + Vite frontend for a **rule‑based chatbot for bookstore management**, backed by **n8n workflows**.
 
 The app has:
+
 - a **marketing landing page** to showcase the system,
 - a **chat interface** where users talk to the rule‑based bot,
 - an **admin dashboard** that visualizes books, orders, and chat logs coming from n8n.
 
 ---
 
+### Demo: https://drive.google.com/file/d/1U2xn-hS__0m5npt7VlFDyNg7k5GmN7Cb/view?usp=sharing
+
 ## Core Features (UI)
 
 ### Landing Page (`/`)
-- **Hero section** describing a *“Rule‑Based Chatbot for Bookstore Management”*.
+
+- **Hero section** describing a _“Rule‑Based Chatbot for Bookstore Management”_.
 - **Call‑to‑action buttons** to open the Chat (`/chat`) and Admin Dashboard (`/admin`).
 - **Horizontal auto‑scrolling “Featured books” strip**:
   - Shows up to 10 books from the backend catalog.
   - Displays **stock badge**, **title**, **author**, and **price**.
-  - Uses **real book cover images** for known titles (e.g. *Atomic Habits*, *Ikigai*, *Harry Potter and the Philosopher’s Stone*, *The Alchemist*).
+  - Uses **real book cover images** for known titles (e.g. _Atomic Habits_, _Ikigai_, _Harry Potter and the Philosopher’s Stone_, _The Alchemist_).
 - **Feature cards** explaining how the chatbot helps with:
   - Rule‑based chat flows,
   - Guided book search,
@@ -29,6 +33,7 @@ The app has:
 - **CTA footer** to start chatting with the bot.
 
 ### Chat Interface (`/chat`)
+
 - Clean, centered chat window with **user** and **bot** message bubbles.
 - **Session‑based** conversation (a session ID is generated and reused for that tab).
 - **Quick‑action buttons** below the input, such as:
@@ -40,6 +45,7 @@ The app has:
 - Messages are sent to n8n and **bot responses** (from `bot_response`) are appended to the chat.
 
 ### Admin Dashboard (`/admin`)
+
 - Tabbed layout with three main tables backed by n8n:
   - **Books**
     - Columns: `Book ID`, `Title`, `Author`, `Genre`, `Price`, `Stock`.
@@ -77,11 +83,13 @@ The app has:
 ## Installation
 
 1. Navigate to the project directory:
+
 ```bash
 cd bookstore-chatbot-frontend
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
@@ -93,22 +101,12 @@ npm install
 ### Development Mode
 
 Start the development server:
+
 ```bash
 npm run dev
 ```
 
 The application will be available at `http://localhost:5173`
-
-### Production Build
-
-Build for production:
-```bash
-npm run build
-
-npm run preview
-```
-
----
 
 ## Project Structure
 
@@ -145,7 +143,7 @@ bookstore-chatbot-frontend/
 All frontend API calls are defined in `src/services/api.js` and share the same base:
 
 ```javascript
-const API_BASE_URL = 'http://localhost:5678/webhook/bookstore-chat';
+const API_BASE_URL = "http://localhost:5678/webhook/bookstore-chat";
 ```
 
 The frontend uses **relative paths** from this base:
@@ -239,7 +237,7 @@ The frontend uses **relative paths** from this base:
   "timestamp": "ISO string or display string",
   "user_message": "string",
   "bot_response": "string",
-  "intent": "BOOK_SEARCH" | "PAYMENT" | "TRACK" | "..." 
+  "intent": "BOOK_SEARCH" | "PAYMENT" | "TRACK" | "..."
 }
 ```
 
@@ -305,7 +303,7 @@ In n8n, create workflows matching these webhook URLs:
 Edit `src/services/api.js`:
 
 ```javascript
-const API_BASE_URL = 'http://localhost:5678/webhook/bookstore-chat';
+const API_BASE_URL = "http://localhost:5678/webhook/bookstore-chat";
 ```
 
 Change this to point to your deployed n8n instance.
@@ -331,14 +329,17 @@ theme: {
 ## Troubleshooting
 
 ### CORS Issues
+
 Ensure your n8n backend allows requests from `http://localhost:5173` (or your deployed frontend origin).
 
 ### API Connection Failed
+
 1. Verify n8n is running at `http://localhost:5678`.
 2. Confirm that the webhook paths (`/`, `/books`, `/orders`, `/logs`) exist and are active.
 3. Check the browser console and n8n logs for details.
 
 ### Build Errors
+
 1. Delete `node_modules` and `package-lock.json` / `yarn.lock`.
 2. Run `npm install` again.
 3. Clear Vite cache: `npm run dev -- --force`.
