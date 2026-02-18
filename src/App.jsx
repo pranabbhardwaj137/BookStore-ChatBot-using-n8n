@@ -19,14 +19,14 @@ const Navigation = () => {
                 <div className="flex justify-between items-center h-16">
                     <Link to="/" className="flex items-center gap-2">
                         <BookOpen size={28} className="text-blue-600" />
-                        <h1 className="text-2xl font-bold text-blue-600">Bookstore Chatbot</h1>
+                        <h1 className="text-2xl font-bold text-blue-600">ChatBooks</h1>
                     </Link>
                     <div className="flex space-x-4">
                         <Link
                             to="/chat"
                             className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-smooth ${location.pathname === '/chat'
-                                    ? 'bg-blue-500 text-white'
-                                    : 'text-gray-600 hover:bg-gray-100'
+                                ? 'bg-blue-500 text-white'
+                                : 'text-gray-600 hover:bg-gray-100'
                                 }`}
                         >
                             <MessageCircle size={20} />
@@ -35,8 +35,8 @@ const Navigation = () => {
                         <Link
                             to="/admin"
                             className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-smooth ${location.pathname === '/admin'
-                                    ? 'bg-blue-500 text-white'
-                                    : 'text-gray-600 hover:bg-gray-100'
+                                ? 'bg-blue-500 text-white'
+                                : 'text-gray-600 hover:bg-gray-100'
                                 }`}
                         >
                             <LayoutDashboard size={20} />
